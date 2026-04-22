@@ -1,16 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
-<body>
-  <h2>Login</h2>
-  {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
-  <form method="POST">
-    <input type="text"     name="username" placeholder="Username" required><br><br>
-    <input type="password" name="password" placeholder="Password" required><br><br>
-    <button type="submit">Login</button>
-  </form>
-  <br>
-  <a href="/register">Need an account? Register</a> |
-  <a href="/guest">Continue as Guest</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    SecureDocs
+  </div>
+  <p class="auth-sub">Secure Document Sharing — CS 419</p>
+
+  <div class="auth-card fade-in">
+    <p class="card-title">Sign in</p>
+
+    {% if error %}
+    <div class="alert alert-error">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" autofocus required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password-login" name="password" autocomplete="current-password" required />
+      </div>
+      <div class="mt-2">
+        <button type="submit" class="btn btn-primary btn-full">Sign in</button>
+      </div>
+    </form>
+
+    <div class="text-center mt-2" style="font-size:0.8rem; color: var(--text-muted); font-family: var(--font-mono);">
+      No account? <a href="{{ url_for('register') }}">Register</a>
+      &nbsp;·&nbsp;
+      <a href="{{ url_for('guest_login') }}">Continue as guest</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

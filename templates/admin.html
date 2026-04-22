@@ -1,80 +1,107 @@
-<!DOCTYPE html>
-<html>
-<head><title>Admin Panel</title></head>
-<body>
-  <h2>Admin Panel</h2>
-  <a href="/dashboard">Back to Dashboard</a>
-  <hr>
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
 
-  <h3>All Users</h3>
-  <table border="1" cellpadding="8">
-    <tr>
-      <th>Username</th>
-      <th>Email</th>
-      <th>Role</th>
-      <th>Failed Attempts</th>
-      <th>Actions</th>
-    </tr>
-    {% for username, user in users.items() %}
-    <tr>
-      <td>{{ user.username }}</td>
-      <td>{{ user.email }}</td>
-      <td>{{ user.role }}</td>
-      <td>{{ user.failed_attempts }}</td>
-      <td>
-        {% if user.username != 'admin' and user.username != 'guest' %}
-        <form method="POST" action="/admin/change_role/{{ user.username }}" style="display:inline">
-          <select name="role">
-            <option value="user"  {% if user.role == 'user'  %}selected{% endif %}>User</option>
-            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
-            <option value="guest" {% if user.role == 'guest' %}selected{% endif %}>Guest</option>
-          </select>
-          <button type="submit">Change Role</button>
-        </form>
-        |
-        <a href="/admin/delete_user/{{ user.username }}"
-           onclick="return confirm('Delete user {{ user.username }}?')">Delete</a>
-        {% else %}
-          Protected account
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+{% block content %}
+<div class="container fade-in">
+  <div class="page-header">
+    <h1>Admin panel</h1>
+    <p>Manage users and documents across the system</p>
+  </div>
 
-  <hr>
-  <h3>All Documents</h3>
-  <table border="1" cellpadding="8">
-    <tr>
-      <th>Filename</th>
-      <th>Owner</th>
-      <th>Version</th>
-      <th>Shared With</th>
-      <th>Actions</th>
-    </tr>
-    {% for doc_id, doc in documents.items() %}
-    <tr>
-      <td>{{ doc.filename }}</td>
-      <td>{{ doc.owner }}</td>
-      <td>v{{ doc.versions|length }}</td>
-      <td>
-        {% if doc.shared_with %}
-          {% for u, r in doc.shared_with.items() %}
-            {{ u }} ({{ r }}){% if not loop.last %}, {% endif %}
-          {% endfor %}
-        {% else %}
-          Nobody
-        {% endif %}
-      </td>
-      <td>
-        <a href="/documents/download/{{ doc_id }}">Download</a> |
-        <a href="/documents/edit/{{ doc_id }}">Edit</a> |
-        <a href="/documents/share/{{ doc_id }}">Share</a> |
-        <a href="/documents/delete/{{ doc_id }}"
-           onclick="return confirm('Delete this document?')">Delete</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-</body>
-</html>
+  <!-- Stats -->
+  <div class="stats-grid fade-in-delay">
+    <div class="stat-card">
+      <div class="stat-value">{{ users | length }}</div>
+      <div class="stat-label">Total users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ documents | length }}</div>
+      <div class="stat-label">Documents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ users.values() | selectattr('role','eq','admin') | list | length }}</div>
+      <div class="stat-label">Admins</div>
+    </div>
+  </div>
+
+  <!-- Users -->
+  <div class="section-title">Users</div>
+  <div class="table-wrap mb-2">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Failed attempts</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for username, u in users.items() %}
+        <tr>
+          <td class="filename">{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td><span class="badge-role {{ u.role }}">{{ u.role }}</span></td>
+          <td>{{ u.failed_attempts }}</td>
+          <td>
+            <div class="actions">
+              {% if username != 'admin' and username != 'guest' %}
+              <form method="POST" action="{{ url_for('change_role', username=username) }}" style="display:inline-flex; gap:0.4rem; align-items:center;">
+                <select name="role" style="font-size:0.72rem; padding:0.25rem 0.5rem; height:auto;">
+                  <option value="user"  {% if u.role=='user'  %}selected{% endif %}>user</option>
+                  <option value="admin" {% if u.role=='admin' %}selected{% endif %}>admin</option>
+                  <option value="guest" {% if u.role=='guest' %}selected{% endif %}>guest</option>
+                </select>
+                <button type="submit" class="btn btn-secondary btn-sm">Set</button>
+              </form>
+              <a href="{{ url_for('delete_user', username=username) }}" class="btn btn-danger btn-sm"
+                 data-confirm="Permanently delete user '{{ username }}'?">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+                Delete
+              </a>
+              {% else %}
+              <span style="color:var(--text-muted); font-size:0.72rem; font-family:var(--font-mono);">protected</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Documents -->
+  <div class="section-title mt-3">All documents</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Owner</th>
+          <th>Shared with</th>
+          <th>Versions</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc_id, doc in documents.items() %}
+        <tr>
+          <td class="filename">{{ doc.filename }}</td>
+          <td>{{ doc.owner }}</td>
+          <td>{{ doc.shared_with.keys() | join(', ') if doc.shared_with else '—' }}</td>
+          <td>v{{ doc.versions | length }}</td>
+          <td>
+            <div class="actions">
+              <a href="{{ url_for('download_document', doc_id=doc_id) }}" class="btn btn-secondary btn-sm">Download</a>
+              <a href="{{ url_for('delete_document', doc_id=doc_id) }}" class="btn btn-danger btn-sm"
+                 data-confirm="Delete '{{ doc.filename }}'?">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

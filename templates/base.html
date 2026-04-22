@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}SecureDocs{% endblock %} — CS 419</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+{% if g.user %}
+<nav class="navbar">
+  <a class="nav-brand" href="{{ url_for('dashboard') }}">
+    <svg class="shield-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    SecureDocs
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+    <li><a href="{{ url_for('documents') }}">Documents</a></li>
+    {% if g.user.role == 'admin' %}
+    <li><a href="{{ url_for('admin_dashboard') }}">Admin</a></li>
+    {% endif %}
+  </ul>
+
+  <div class="nav-user">
+    {% if g.user.role != 'guest' %}
+    <span id="session-timer" data-seconds="1800" data-tip="Session timeout"></span>
+    {% endif %}
+    <span class="badge-role {{ g.user.role }}">{{ g.user.role }}</span>
+    <span style="color: var(--text-dim)">{{ g.user.username }}</span>
+    <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+  </div>
+</nav>
+{% endif %}
+
+{% block content %}{% endblock %}
+
+{% if g.user %}
+<footer class="security-strip">
+  <span><span class="dot"></span> TLS encrypted</span>
+  <span>AES-128 file encryption</span>
+  <span>bcrypt · cost=12</span>
+  <span style="margin-left:auto; opacity:0.5">CS 419 — Bochenko &amp; Nayak</span>
+</footer>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

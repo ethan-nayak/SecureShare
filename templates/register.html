@@ -1,17 +1,61 @@
-<!DOCTYPE html>
-<html>
-<head><title>Register</title></head>
-<body>
-  <h2>Create Account</h2>
-  {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
-  <form method="POST">
-    <input type="text"     name="username"         placeholder="Username (3-20 chars)"  required><br><br>
-    <input type="email"    name="email"             placeholder="Email"                  required><br><br>
-    <input type="password" name="password"          placeholder="Password (min 12 chars)" required><br><br>
-    <input type="password" name="confirm_password"  placeholder="Confirm Password"       required><br><br>
-    <button type="submit">Register</button>
-  </form>
-  <small>Password must have 12+ chars, uppercase, lowercase, number, special (!@#$%^&*)</small><br><br>
-  <a href="/login">Already have an account? Login</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+    SecureDocs
+  </div>
+  <p class="auth-sub">Create a new account</p>
+
+  <div class="auth-card fade-in" style="max-width:440px;">
+    <p class="card-title">Register</p>
+
+    {% if error %}
+    <div class="alert alert-error">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" autocomplete="username" autofocus
+               placeholder="3–20 alphanumeric chars" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="email"
+               placeholder="you@example.com" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" autocomplete="new-password"
+               placeholder="12+ chars, upper, lower, number, symbol" required />
+        <!-- strength meter -->
+        <div style="margin-top:0.5rem; height:3px; background:var(--border); border-radius:2px; overflow:hidden;">
+          <div id="strength-bar" style="height:100%; width:0; transition:width 0.3s,background 0.3s;"></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:0.25rem;">
+          <span id="strength-text" style="font-size:0.68rem; font-family:var(--font-mono);"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="confirm_password">Confirm password</label>
+        <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" required />
+      </div>
+      <div class="mt-2">
+        <button type="submit" class="btn btn-primary btn-full">Create account</button>
+      </div>
+    </form>
+
+    <div class="text-center mt-2" style="font-size:0.8rem; color: var(--text-muted); font-family: var(--font-mono);">
+      Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

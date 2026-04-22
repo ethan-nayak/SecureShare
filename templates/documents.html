@@ -1,61 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head><title>Documents</title></head>
-<body>
-  <h2>Documents</h2>
-  {% if user.role != 'guest' %}
-  <a href="/documents/upload">Upload New Document</a> |
-  {% endif %}
-  <a href="/logout">Logout</a>
-  <hr>
-  {% if documents %}
-  <table border="1" cellpadding="8">
-    <tr>
-      <th>Filename</th>
-      <th>Owner</th>
-      <th>Your Role</th>
-      <th>Version</th>
-      <th>Shared With</th>
-      <th>Actions</th>
-    </tr>
-    {% for doc_id, doc in documents.items() %}
-    <tr>
-      <td>{{ doc.filename }}</td>
-      <td>{{ doc.owner }}</td>
-      <td>
-        {% if doc.owner == user.username %}owner
-        {% elif user.role == 'guest' %}viewer
-        {% else %}{{ doc.shared_with.get(user.username, 'viewer') }}
-        {% endif %}
-      </td>
-      <td>v{{ doc.versions|length }}</td>
-      <td>
-        {% if doc.shared_with %}
-          {% for u, r in doc.shared_with.items() %}
-            {{ u }} ({{ r }}){% if not loop.last %}, {% endif %}
-          {% endfor %}
-        {% else %}
-          Nobody
-        {% endif %}
-      </td>
-      <td>
-        <a href="/documents/download/{{ doc_id }}">Download</a>
-        {% if doc.owner == user.username or user.role == 'admin' %}
-          | <a href="/documents/edit/{{ doc_id }}">Edit</a>
-          | <a href="/documents/share/{{ doc_id }}">Share</a>
-          | <a href="/documents/delete/{{ doc_id }}"
-               onclick="return confirm('Delete this document?')">Delete</a>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-  {% else %}
-  <p>No documents yet.
+{% extends "base.html" %}
+{% block title %}Documents{% endblock %}
+
+{% block content %}
+<div class="container fade-in">
+  <div class="page-header flex-between">
+    <div>
+      <h1>Documents</h1>
+      <p>{{ documents | length }} file(s) accessible to you</p>
+    </div>
     {% if user.role != 'guest' %}
-    <a href="/documents/upload">Upload one!</a>
+    <a href="{{ url_for('upload_document') }}" class="btn btn-primary">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Upload
+    </a>
     {% endif %}
-  </p>
+  </div>
+
+  {% if documents %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Owner</th>
+          <th>Shared with</th>
+          <th>Uploaded</th>
+          <th>Ver.</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc_id, doc in documents.items() %}
+        <tr>
+          <td class="filename">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" style="vertical-align:-2px; margin-right:4px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {{ doc.filename }}
+          </td>
+          <td>{{ doc.owner }}</td>
+          <td>
+            {% if doc.shared_with %}
+              {% for u, role in doc.shared_with.items() %}
+                <span class="badge-role {{ 'user' if role == 'editor' else 'guest' }}" style="font-size:0.65rem; margin-right:2px;">{{ u }}/{{ role }}</span>
+              {% endfor %}
+            {% else %}
+              <span style="color:var(--border-hi)">—</span>
+            {% endif %}
+          </td>
+          <td>{{ doc.uploaded_at | int | string | truncate(10, True, '') }}</td>
+          <td>v{{ doc.versions | length }}</td>
+          <td>
+            <div class="actions">
+              <a href="{{ url_for('download_document', doc_id=doc_id) }}" class="btn btn-secondary btn-sm" data-tip="Download">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download
+              </a>
+              {% if user.role != 'guest' and (doc.owner == user.username or user.role == 'admin') %}
+              <a href="{{ url_for('share_document', doc_id=doc_id) }}" class="btn btn-secondary btn-sm">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share
+              </a>
+              <a href="{{ url_for('edit_document', doc_id=doc_id) }}" class="btn btn-secondary btn-sm">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </a>
+              <a href="{{ url_for('delete_document', doc_id=doc_id) }}" class="btn btn-danger btn-sm"
+                 data-confirm="Delete '{{ doc.filename }}'? This cannot be undone.">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Delete
+              </a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📄</div>
+    <p>No documents yet.</p>
+    {% if user.role != 'guest' %}
+    <a href="{{ url_for('upload_document') }}" class="btn btn-secondary mt-2">Upload your first document</a>
+    {% endif %}
+  </div>
   {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}

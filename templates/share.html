@@ -1,17 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head><title>Share Document</title></head>
-<body>
-  <h2>Share "{{ doc.filename }}"</h2>
-  {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
-  <form method="POST">
-    <input type="text" name="username" placeholder="Username to share with" required><br><br>
-    <select name="role">
-      <option value="viewer">Viewer (can download)</option>
-      <option value="editor">Editor (can download)</option>
-    </select><br><br>
-    <button type="submit">Share</button>
-  </form>
-  <br><a href="/documents">Back to Documents</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Share Document{% endblock %}
+
+{% block content %}
+<div class="container-sm fade-in" style="padding-top:3rem;">
+  <div class="page-header">
+    <h1>Share document</h1>
+    <p>{{ doc.filename }}</p>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-error">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <form method="POST" action="{{ url_for('share_document', doc_id=doc.doc_id) }}">
+      <div class="form-group">
+        <label for="share-user">Share with (username)</label>
+        <input type="text" id="share-user" name="username" placeholder="Enter username" required autofocus />
+      </div>
+      <div class="form-group">
+        <label for="role">Permission level</label>
+        <select id="role" name="role">
+          <option value="viewer">Viewer — can download only</option>
+          <option value="editor">Editor — can upload new versions</option>
+        </select>
+      </div>
+      <div class="mt-2" style="display:flex; gap:0.75rem;">
+        <button type="submit" class="btn btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+        <a href="{{ url_for('documents') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  {% if doc.shared_with %}
+  <div class="section-title mt-3">Currently shared with</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>User</th><th>Role</th></tr></thead>
+      <tbody>
+        {% for u, r in doc.shared_with.items() %}
+        <tr><td>{{ u }}</td><td><span class="badge-role {{ 'user' if r == 'editor' else 'guest' }}">{{ r }}</span></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
