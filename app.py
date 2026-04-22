@@ -14,8 +14,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import html
 
-#TODO Rate limiting: Max 10 login attempts per IP per minute
-
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
 
@@ -47,11 +45,12 @@ def set_security_headers(response):
         "connect-src 'self'; "
         "frame-ancestors 'none'"
     )
-    response.headers["X-Frame-Options"]        = "DENY"
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-XSS-Protection"]       = "1; mode=block"
-    response.headers["Referrer-Policy"]        = "strict-origin-when-cross-origin"
-    response.headers["Permissions-Policy"]     = "geolocation=(), microphone=(), camera=()"
+    response.headers["X-Frame-Options"]           = "DENY"
+    response.headers["X-Content-Type-Options"]    = "nosniff"
+    response.headers["X-XSS-Protection"]          = "1; mode=block"
+    response.headers["Referrer-Policy"]           = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"]        = "geolocation=(), microphone=(), camera=()"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
 # ── helpers ──────────────────────────────────────────────
@@ -173,10 +172,15 @@ def require_role(role):
         @wraps(f)
         def decorated(*args, **kwargs):
             user = get_current_user()
-            if not user or user["role"] != role:
+            if not user:
+                return redirect(url_for("login"))
+            role_hierarchy = {"admin": 3, "user": 2, "guest": 1}
+            user_level     = role_hierarchy.get(user["role"], 0)
+            required_level = role_hierarchy.get(role, 0)
+            if user_level < required_level:
                 security_log.log_event(
                     "ACCESS_DENIED",
-                    user_id=user["username"] if user else None,
+                    user_id=user["username"],
                     details={"resource": request.path, "reason": "Insufficient privileges"},
                     severity="WARNING"
                 )
@@ -253,6 +257,7 @@ def register():
     return render_template("register.html")
 
 @app.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -273,7 +278,7 @@ def login():
             mins = int((user["locked_until"] - time.time()) / 60) + 1
             security_log.log_event("LOGIN_BLOCKED", user_id=username,
                 details={"reason": "Account locked"}, severity="WARNING")
-            return render_template("login.html",  
+            return render_template("login.html",
                 error=f"Account locked. Try again in {mins} minute(s)")
 
         # Check password
@@ -307,6 +312,7 @@ def login():
         response.set_cookie(
             "session_token", token,
             httponly=True,
+            secure=True,
             samesite="Strict",
             max_age=config.SESSION_TIMEOUT
         )
@@ -391,6 +397,7 @@ def guest_login():
     response.set_cookie(
         "session_token", token,
         httponly=True,
+        secure=True,
         samesite="Strict",
         max_age=3600
     )
@@ -400,6 +407,15 @@ def guest_login():
 def allowed_file(filename):
     return "." in filename and \
            filename.rsplit(".", 1)[1].lower() in config.ALLOWED_EXTENSIONS
+
+# Allowed MIME types matching our extensions
+ALLOWED_MIMES = {
+    "application/pdf",
+    "text/plain",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/png",
+    "image/jpeg"
+}
 
 # ── document routes ──────────────────────────────────────
 @app.route("/documents")
@@ -417,17 +433,9 @@ def documents():
     }
     return render_template("documents.html", documents=user_docs, user=g.user)
 
-# Allowed MIME types matching our extensions
-ALLOWED_MIMES = {
-    "application/pdf",
-    "text/plain",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "image/png",
-    "image/jpeg"
-}
-
 @app.route("/documents/upload", methods=["GET", "POST"])
 @require_auth
+@require_role("user")
 def upload_document():
     if request.method == "POST":
         if "file" not in request.files:
@@ -526,6 +534,7 @@ def download_document(doc_id):
 
 @app.route("/documents/share/<doc_id>", methods=["GET", "POST"])
 @require_auth
+@require_role("user")
 def share_document(doc_id):
     docs     = load_json(config.DOCUMENTS_FILE)
     username = g.user["username"]
@@ -568,6 +577,7 @@ def share_document(doc_id):
 
 @app.route("/documents/delete/<doc_id>")
 @require_auth
+@require_role("user")
 def delete_document(doc_id):
     docs     = load_json(config.DOCUMENTS_FILE)
     username = g.user["username"]
@@ -663,10 +673,20 @@ def edit_document(doc_id):
 
     return render_template("edit.html", doc=doc)
 
+@app.errorhandler(429)
+def rate_limit_exceeded(e):
+    security_log.log_event(
+        "RATE_LIMIT_EXCEEDED",
+        details={"ip": request.remote_addr, "path": request.path},
+        severity="WARNING"
+    )
+    return render_template("error.html",
+        error="Too many requests. Please wait a minute and try again."), 429
+
 if __name__ == "__main__":
     app.run(
         ssl_context=('cert.pem', 'key.pem'),
         host='0.0.0.0',
         port=5000,
-        debug=True
+        debug=os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     )
