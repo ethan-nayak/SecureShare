@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><title>Documents</title></head>
+<body>
+  <h2>Documents</h2>
+  {% if user.role != 'guest' %}
+  <a href="/documents/upload">Upload New Document</a> |
+  {% endif %}
+  <a href="/logout">Logout</a>
+  <hr>
+  {% if documents %}
+  <table border="1" cellpadding="8">
+    <tr>
+      <th>Filename</th>
+      <th>Owner</th>
+      <th>Your Role</th>
+      <th>Version</th>
+      <th>Shared With</th>
+      <th>Actions</th>
+    </tr>
+    {% for doc_id, doc in documents.items() %}
+    <tr>
+      <td>{{ doc.filename }}</td>
+      <td>{{ doc.owner }}</td>
+      <td>
+        {% if doc.owner == user.username %}owner
+        {% elif user.role == 'guest' %}viewer
+        {% else %}{{ doc.shared_with.get(user.username, 'viewer') }}
+        {% endif %}
+      </td>
+      <td>v{{ doc.versions|length }}</td>
+      <td>
+        {% if doc.shared_with %}
+          {% for u, r in doc.shared_with.items() %}
+            {{ u }} ({{ r }}){% if not loop.last %}, {% endif %}
+          {% endfor %}
+        {% else %}
+          Nobody
+        {% endif %}
+      </td>
+      <td>
+        <a href="/documents/download/{{ doc_id }}">Download</a>
+        {% if doc.owner == user.username or user.role == 'admin' %}
+          | <a href="/documents/edit/{{ doc_id }}">Edit</a>
+          | <a href="/documents/share/{{ doc_id }}">Share</a>
+          | <a href="/documents/delete/{{ doc_id }}"
+               onclick="return confirm('Delete this document?')">Delete</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>No documents yet.
+    {% if user.role != 'guest' %}
+    <a href="/documents/upload">Upload one!</a>
+    {% endif %}
+  </p>
+  {% endif %}
+</body>
+</html>

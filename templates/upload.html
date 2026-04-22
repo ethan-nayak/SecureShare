@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Upload Document</title></head>
+<body>
+  <h2>Upload Document</h2>
+  {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+  <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" required><br><br>
+    <small>Allowed types: pdf, txt, docx, png, jpg (max 16MB)</small><br><br>
+    <button type="submit">Upload</button>
+  </form>
+  <br><a href="/documents">Back to Documents</a>
+</body>
+</html>

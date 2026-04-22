@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dashboard</title></head>
+<body>
+  <h2>Welcome, {{ user.username }}!</h2>
+  <p>Role: {{ user.role }}</p>
+  <nav>
+    <a href="/documents">My Documents</a> |
+    {% if user.role == 'admin' %}
+    <a href="/admin">Admin Panel</a> |
+    {% endif %}
+    <a href="/logout">Logout</a>
+  </nav>
+</body>
+</html>

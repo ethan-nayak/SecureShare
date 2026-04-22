@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head><title>Admin Panel</title></head>
+<body>
+  <h2>Admin Panel</h2>
+  <a href="/dashboard">Back to Dashboard</a>
+  <hr>
+
+  <h3>All Users</h3>
+  <table border="1" cellpadding="8">
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th>Failed Attempts</th>
+      <th>Actions</th>
+    </tr>
+    {% for username, user in users.items() %}
+    <tr>
+      <td>{{ user.username }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.role }}</td>
+      <td>{{ user.failed_attempts }}</td>
+      <td>
+        {% if user.username != 'admin' and user.username != 'guest' %}
+        <form method="POST" action="/admin/change_role/{{ user.username }}" style="display:inline">
+          <select name="role">
+            <option value="user"  {% if user.role == 'user'  %}selected{% endif %}>User</option>
+            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+            <option value="guest" {% if user.role == 'guest' %}selected{% endif %}>Guest</option>
+          </select>
+          <button type="submit">Change Role</button>
+        </form>
+        |
+        <a href="/admin/delete_user/{{ user.username }}"
+           onclick="return confirm('Delete user {{ user.username }}?')">Delete</a>
+        {% else %}
+          Protected account
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <hr>
+  <h3>All Documents</h3>
+  <table border="1" cellpadding="8">
+    <tr>
+      <th>Filename</th>
+      <th>Owner</th>
+      <th>Version</th>
+      <th>Shared With</th>
+      <th>Actions</th>
+    </tr>
+    {% for doc_id, doc in documents.items() %}
+    <tr>
+      <td>{{ doc.filename }}</td>
+      <td>{{ doc.owner }}</td>
+      <td>v{{ doc.versions|length }}</td>
+      <td>
+        {% if doc.shared_with %}
+          {% for u, r in doc.shared_with.items() %}
+            {{ u }} ({{ r }}){% if not loop.last %}, {% endif %}
+          {% endfor %}
+        {% else %}
+          Nobody
+        {% endif %}
+      </td>
+      <td>
+        <a href="/documents/download/{{ doc_id }}">Download</a> |
+        <a href="/documents/edit/{{ doc_id }}">Edit</a> |
+        <a href="/documents/share/{{ doc_id }}">Share</a> |
+        <a href="/documents/delete/{{ doc_id }}"
+           onclick="return confirm('Delete this document?')">Delete</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

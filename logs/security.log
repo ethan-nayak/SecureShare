@@ -1,0 +1,29 @@
+2026-04-21 15:46:57,072 - WARNING - {"timestamp": "2026-04-21T19:46:57.072856", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must be at least 12 characters"}}
+2026-04-21 15:46:57,076 - WARNING - {"timestamp": "2026-04-21T19:46:57.076470", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "username", "reason": "Username must be 3-20 characters"}}
+2026-04-21 15:46:57,080 - WARNING - {"timestamp": "2026-04-21T19:46:57.080295", "event_type": "LOGIN_FAILED", "user_id": null, "details": {"username": "nonexistent", "reason": "User not found"}}
+2026-04-21 15:46:57,142 - WARNING - {"timestamp": "2026-04-21T19:46:57.142253", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "username", "reason": "Username can only contain letters, numbers, underscore"}}
+2026-04-21 15:46:57,143 - WARNING - {"timestamp": "2026-04-21T19:46:57.143787", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must contain at least 1 uppercase letter"}}
+2026-04-21 15:48:52,882 - WARNING - {"timestamp": "2026-04-21T19:48:52.882249", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must be at least 12 characters"}}
+2026-04-21 15:48:52,885 - WARNING - {"timestamp": "2026-04-21T19:48:52.885380", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "username", "reason": "Username must be 3-20 characters"}}
+2026-04-21 15:48:52,888 - WARNING - {"timestamp": "2026-04-21T19:48:52.887971", "event_type": "LOGIN_FAILED", "user_id": null, "details": {"username": "nonexistent", "reason": "User not found"}}
+2026-04-21 15:48:52,895 - WARNING - {"timestamp": "2026-04-21T19:48:52.895358", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "username", "reason": "Username can only contain letters, numbers, underscore"}}
+2026-04-21 15:48:52,896 - WARNING - {"timestamp": "2026-04-21T19:48:52.896625", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must contain at least 1 uppercase letter"}}
+2026-04-21 15:50:03,116 - WARNING - {"timestamp": "2026-04-21T19:50:03.116399", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must be at least 12 characters"}}
+2026-04-21 15:50:03,119 - WARNING - {"timestamp": "2026-04-21T19:50:03.119617", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "username", "reason": "Username must be 3-20 characters"}}
+2026-04-21 15:50:03,122 - WARNING - {"timestamp": "2026-04-21T19:50:03.122436", "event_type": "LOGIN_FAILED", "user_id": null, "details": {"username": "nonexistent", "reason": "User not found"}}
+2026-04-21 15:50:03,128 - WARNING - {"timestamp": "2026-04-21T19:50:03.128822", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "username", "reason": "Username can only contain letters, numbers, underscore"}}
+2026-04-21 15:50:03,129 - WARNING - {"timestamp": "2026-04-21T19:50:03.129901", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must contain at least 1 uppercase letter"}}
+2026-04-21 15:50:03,131 - WARNING - {"timestamp": "2026-04-21T19:50:03.131312", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must contain at least 1 special character (!@#$%^&*)"}}
+2026-04-21 17:36:47,860 - WARNING - {"timestamp": "2026-04-21T21:36:47.860829", "event_type": "LOGIN_FAILED", "user_id": null, "details": {"username": "admin", "reason": "User not found"}}
+2026-04-21 17:37:07,921 - WARNING - {"timestamp": "2026-04-21T21:37:07.921456", "event_type": "LOGIN_FAILED", "user_id": null, "details": {"username": "Admin", "reason": "User not found"}}
+2026-04-21 17:38:06,236 - WARNING - {"timestamp": "2026-04-21T21:38:06.236713", "event_type": "VALIDATION_FAILED", "user_id": null, "details": {"field": "password", "reason": "Password must be at least 12 characters"}}
+2026-04-21 17:39:49,054 - INFO - {"timestamp": "2026-04-21T21:39:49.054796", "event_type": "USER_REGISTERED", "user_id": "EthanNayak", "details": {"email": "ethann9191@gmail.com"}}
+2026-04-21 17:39:53,797 - INFO - {"timestamp": "2026-04-21T21:39:53.797847", "event_type": "SESSION_CREATED", "user_id": "guest", "details": {}}
+2026-04-21 17:40:20,922 - INFO - {"timestamp": "2026-04-21T21:40:20.922437", "event_type": "SESSION_CREATED", "user_id": "EthanNayak", "details": {}}
+2026-04-21 17:40:20,922 - INFO - {"timestamp": "2026-04-21T21:40:20.922917", "event_type": "LOGIN_SUCCESS", "user_id": "EthanNayak", "details": {}}
+2026-04-21 17:45:19,388 - WARNING - {"timestamp": "2026-04-21T21:45:19.388395", "event_type": "LOGIN_FAILED", "user_id": null, "details": {"username": "Admin", "reason": "User not found"}}
+2026-04-21 17:45:28,337 - INFO - {"timestamp": "2026-04-21T21:45:28.337764", "event_type": "SESSION_CREATED", "user_id": "admin", "details": {}}
+2026-04-21 17:45:28,338 - INFO - {"timestamp": "2026-04-21T21:45:28.338011", "event_type": "LOGIN_SUCCESS", "user_id": "admin", "details": {}}
+2026-04-21 17:45:35,077 - INFO - {"timestamp": "2026-04-21T21:45:35.077168", "event_type": "ROLE_CHANGED", "user_id": "admin", "details": {"target_user": "EthanNayak", "old_role": "user", "new_role": "user"}}
+2026-04-21 17:45:36,881 - INFO - {"timestamp": "2026-04-21T21:45:36.881071", "event_type": "ROLE_CHANGED", "user_id": "admin", "details": {"target_user": "EthanNayak", "old_role": "user", "new_role": "user"}}
+2026-04-21 17:48:53,659 - INFO - {"timestamp": "2026-04-21T21:48:53.659701", "event_type": "USER_DELETED", "user_id": "admin", "details": {"deleted_user": "EthanNayak"}}
